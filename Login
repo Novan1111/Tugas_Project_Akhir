@@ -1,0 +1,24 @@
+import javax.swing.JOptionPane;
+public class Login extends javax.swing.JFrame {
+
+    public Login() {
+        initComponents();
+    }
+
+    private void txtuserActionPerformed(java.awt.event.ActionEvent evt) {                                        
+        // TODO add your handling code here:
+    }                                       
+
+    private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        if(txtuser.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Harap Mengisi Username Terlebih Dahulu!");
+            txtuser.requestFocus();
+        } else if (txtpass.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Harap Mengisi Password Terlebih Dahulu!");
+            txtpass.requestFocus();
+        } else if (txtuser.getText().contains("Pemilik")&&txtpass.getText().contains("12345")){
+            PemesananJFrame a = new PemesananJFrame();
+            a.setVisible(true);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(null,"Username Atau Password Yang Anda Masukkan Salah!");
