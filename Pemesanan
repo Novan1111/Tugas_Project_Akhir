@@ -1,0 +1,104 @@
+import Penjualan_model.Laporan;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import penjualan_koneksi.ConnectionHelper;
+
+public class FormFramee extends javax.swing.JFrame {
+  String FormTitle = "";
+    int IdPembeli = 0;
+    Laporan laporanGlobal;
+    String penerbit = "";
+    
+    public FormFramee() {
+        initComponents();
+         setLocationRelativeTo(null);
+    }
+   public FormFramee(String title, int id) {
+        initComponents();
+        setLocationRelativeTo(null);
+       AddFormJframe.setText(title);
+        FormTitle = title;
+        IdPembeli = id;
+   try{
+       Connection conn = ConnectionHelper.getConnection();
+            Statement stm = conn.createStatement();
+            System.out.println(id);
+            ResultSet rs = stm.executeQuery("SELECT * FROM laporan WHERE Id_pembeli = " + id);
+            while (rs.next()) {
+              NamaPembeliTextField.setText(rs.getString("Nama_pembeli"));
+              AlamatPembeliTextField.setText(rs.getString("Alamat_pembeli"));
+              NoTeleponTextField.setText(rs.getString("No_telepon"));
+              NamaBarangTextField.setText(rs.getString("Nama_barang"));
+              HargaBarangTextField.setText(rs.getString("Harga_barang"));
+              JumlahBarangTextField.setText(rs.getString("Jumlah_barang"));
+            }
+}       catch (SQLException ex) {
+            System.out.println("error" + ex.getMessage());
+        }
+        validateExite();
+    }
+ private void validateExite() {
+        FormFramee.this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e); //To change body of generated methods, choose Tools | Templates.
+            }
+        });
+    }
+ 
+  public void showMessage(String message, int type) {
+        if (type == 1) {
+            JOptionPane.showMessageDialog(this, message, "Sukses", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        }}
+    void updateLaporan(int id) {
+        try {
+            Connection conn = ConnectionHelper.getConnection();
+            Statement stm = conn.createStatement();
+            System.out.println(AlamatPembeliTextField.getText());
+            String query = "UPDATE laporan SET Nama_pembeli = '" + NamaPembeliTextField.getText() + "',"
+                    + "Alamat_pembeli = '" + AlamatPembeliTextField.getText() + "',"
+                    + "No_telepon = '" + NoTeleponTextField.getText() + "',"
+                     + "Nama_barang = '" + NamaBarangTextField.getText() + "',"
+                     + "Harga_barang = '" + HargaBarangTextField.getText() + "',"
+                    + "Jumlah_barang = '" + JumlahBarangTextField.getText() + "' WHERE Id_pembeli = " + id + " ";
+
+            stm.executeUpdate(query);
+            JOptionPane.showMessageDialog(null, "Data sudah di update ", "infomasi", JOptionPane.INFORMATION_MESSAGE);
+//                      AddBook.this.setVisible(false);
+            FormFramee.this.dispose();
+            new PemesananJFrame().setVisible(true);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Data tidak terupdate" + e.getMessage(), "infomasi", JOptionPane.INFORMATION_MESSAGE);
+        }}
+     void tambahLaporan() {
+        try {
+            Connection conn = ConnectionHelper.getConnection();
+            Statement stm = conn.createStatement();
+            String query = "INSERT INTO `laporan` (`Nama_pembeli`, `Alamat_pembeli`, `No_telepon`, `Nama_barang`,`Harga_barang`,`Jumlah_barang`) "
+                    + "VALUES ('" + NamaPembeliTextField.getText() + "', '" + AlamatPembeliTextField.getText() + "','" + NoTeleponTextField.getText() + "','" + NamaBarangTextField.getText() + "', '" + HargaBarangTextField.getText() + "', '" + JumlahBarangTextField.getText() + "');";
+
+            stm.executeUpdate(query);
+            JOptionPane.showMessageDialog(null, "Data sudah di tambah ", "infomasi", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e, "infomasi", JOptionPane.INFORMATION_MESSAGE);
+        }    }
+          private void SimpanBtnActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        
+        if (IdPembeli == 0) {
+            tambahLaporan();
+        } else {
+            updateLaporan(IdPembeli);
+        } 
+        new PemesananJFrame().setVisible(true);
+        dispose();
+    }                                  
