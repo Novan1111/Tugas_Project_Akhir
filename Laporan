@@ -1,0 +1,108 @@
+import Penjualan_manager.LaporanManager;
+import Penjualan_model.Laporan;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import java.sql.*;
+import penjualan_koneksi.ConnectionHelper;
+
+public class PemesananJFrame extends javax.swing.JFrame {
+
+    private static List<Laporan> listLaporan;
+
+    public PemesananJFrame() {
+        initComponents();
+        setLocationRelativeTo(null);
+        initTablePemesanan();
+        loadLaporan();
+    }
+  public static DefaultTableModel tableModel;
+    public static List<PemesananJFrame> listPemesanan;
+    
+    private void initTablePemesanan(){
+        String[] PemesananColumns = new String[] {"Id_pembeli", "Nama_pembeli", "Alamat_pembeli", "No_telepon", "Nama_barang", "Harga_barang", "Jumlah_barang"};
+ int[] columnWidth = {
+            70,190,210,210,210,210,210};
+        
+        tableModel = new DefaultTableModel(PemesananColumns, 0);
+        pemesananTabel.setModel(tableModel);
+        pemesananTabel.setRowHeight(20);
+        
+        int i = 0;
+        for (int width : columnWidth) {
+            TableColumn column = pemesananTabel.getColumnModel().getColumn(i++);
+            column.setMaxWidth(width);
+            column.setMaxWidth(width);
+            column.setPreferredWidth(width);
+        }
+    }
+    
+    public static void loadLaporan(){
+        listLaporan = new ArrayList<>();
+        listLaporan = LaporanManager.showAllLaporan();
+        tableModel.setRowCount(0);
+        listLaporan.forEach(Laporan ->{
+            tableModel.addRow(new Object[]{
+                Laporan.getId_pembeli(),
+                Laporan.getNama_pembeli(),
+                Laporan.getAlamat_pembeli(),
+                Laporan.getNo_telepon(),
+                Laporan.getNama_barang(),
+                Laporan.getHarga_barang(),
+                Laporan.getJumlah_barang()
+            });
+        });
+    }
+    
+           public void showMessage (String message, int type){
+        if (type == 1){
+            JOptionPane.showMessageDialog(this, message, "Sukses", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, message,"Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+     private void DeleteBtnActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    try {
+        int selectedRow =pemesananTabel.getSelectedRow();
+        if(selectedRow == -1){
+            showMessage("pilih baris dulu", 2);
+        }else{
+            int pilihan = JOptionPane.showConfirmDialog(this," Apakah anda yakin akan menghapus data ini ?", "Konfirmasi",JOptionPane.WARNING_MESSAGE);
+            if(pilihan == JOptionPane.YES_OPTION ){
+                Connection conn = ConnectionHelper.getConnection();
+                Statement stm = conn.createStatement();
+                Laporan laporan = listLaporan.get(selectedRow);
+                stm.executeUpdate("DELETE FROM laporan WHERE Id_pembeli = " + laporan.getId_pembeli());
+                loadPemesanan();
+              }else{
+                System.out.println("salah");
+            }
+        }
+        } catch (Exception ex) {
+            System.out.println("Error: "+ ex.getMessage());
+        }
+    }                                         
+
+    private void AddBtnActionPerformed(java.awt.event.ActionEvent evt) {                                       
+  new FormFramee().setVisible(true);
+        dispose();
+    }                                      
+
+    private void UpdateBtnActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        int selectedRow = pemesananTabel.getSelectedRow();
+        if(selectedRow == -1){
+            showMessage("Pilih baris dulu", 2);
+        }else{
+            Laporan laporan = listLaporan.get(selectedRow);
+           PemesananJFrame.this.setVisible(false);
+            new FormFramee("Update Laporan", laporan.getId_pembeli()).setVisible(true);
+        }
+    }                                         
+
+    private void RefreshBtnActionPerformed(java.awt.event.ActionEvent evt) {                                           
+       DefaultTableModel model = (DefaultTableModel)pemesananTabel.getModel();
+        model.setRowCount(0);
+        loadLaporan();
+    }                                          
